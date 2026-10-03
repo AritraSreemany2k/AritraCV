@@ -1,5 +1,38 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
+import { cvContent } from './cvData';
+
+// ============ CV DOWNLOAD FUNCTION ============
+const downloadCV = async () => {
+  try {
+    // Fetch the PDF CV file from the public folder
+    const response = await fetch('/cv.pdf');
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Aritra_Sreemany_CV.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      return;
+    }
+  } catch (e) {
+    // If fetch fails, fall back to embedded text CV
+  }
+  // Fallback: use the embedded text CV content
+  const blob = new Blob([cvContent], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Aritra_Sreemany_CV.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
 
 // ============ NAVBAR ============
 function Navbar() {
@@ -10,8 +43,7 @@ function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-      
-      const sections = ['home', 'about', 'experience', 'education', 'achievements', 'projects', 'contact'];
+      const sections = ['home', 'about', 'experience', 'education', 'achievements', 'projects', 'skills', 'contact'];
       for (const section of sections.reverse()) {
         const el = document.getElementById(section);
         if (el && window.scrollY >= el.offsetTop - 200) {
@@ -30,14 +62,15 @@ function Navbar() {
     { id: 'education', label: 'Education' },
     { id: 'achievements', label: 'Achievements' },
     { id: 'projects', label: 'Projects' },
+    { id: 'skills', label: 'Skills' },
     { id: 'contact', label: 'Contact' },
   ];
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-gray-950/80 backdrop-blur-xl border-b border-emerald-500/10' : 'bg-transparent'}`}>
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <motion.a 
-          href="#home" 
+        <motion.a
+          href="#home"
           className="text-xl font-bold tracking-tight"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -45,17 +78,16 @@ function Navbar() {
         >
           <span className="text-emerald-400">A</span>ritra<span className="text-emerald-400">.</span>
         </motion.a>
-        
+
         <div className="hidden md:flex items-center gap-1">
           {links.map((link, i) => (
             <motion.a
               key={link.id}
               href={`#${link.id}`}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                activeSection === link.id 
-                  ? 'text-emerald-400 bg-emerald-400/10' 
-                  : 'text-gray-400 hover:text-white'
-              }`}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${activeSection === link.id
+                ? 'text-emerald-400 bg-emerald-400/10'
+                : 'text-gray-400 hover:text-white'
+                }`}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.05 }}
@@ -72,7 +104,7 @@ function Navbar() {
 
       <AnimatePresence>
         {menuOpen && (
-          <motion.div 
+          <motion.div
             className="md:hidden bg-gray-950/95 backdrop-blur-xl border-t border-emerald-500/10 px-6 py-6 flex flex-col gap-3"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -103,7 +135,7 @@ function Hero() {
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-teal-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/3 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '4s' }}></div>
       </div>
 
       {/* Grid */}
@@ -117,7 +149,7 @@ function Hero() {
           className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 text-sm font-medium mb-8"
         >
           <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-          PGDM-IB '26 @ MDI Gurgaon
+          MiM '28 @ Emlyon · PGDM-IB '28 @ MDI Gurgaon
         </motion.div>
 
         <motion.h1
@@ -136,9 +168,9 @@ function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto mb-4 leading-relaxed"
+          className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-4 leading-relaxed"
         >
-          Engineer turned Manager. Building systems, leading teams, and driving ₹1400+ Cr projects from vision to reality.
+          Mechanical engineer turned business strategist. Untangling operational bottlenecks, leading cross-functional teams, and pushing things from paper to ground reality.
         </motion.p>
 
         <motion.div
@@ -147,7 +179,7 @@ function Hero() {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="flex flex-wrap justify-center gap-3 mt-6 mb-10"
         >
-          {['Project Management', 'Team Leadership', 'Process Engineering', 'Strategic Planning'].map((tag) => (
+          {['Operations', 'Strategy', 'Analytics', 'Marketing', 'Project Management'].map((tag) => (
             <span key={tag} className="px-3 py-1.5 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-400 text-sm">
               {tag}
             </span>
@@ -168,6 +200,52 @@ function Hero() {
           </a>
         </motion.div>
 
+        {/* Quick Connect Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="mt-10 flex flex-wrap justify-center gap-3"
+        >
+          <a
+            href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
+          >
+            <i className="fab fa-linkedin-in"></i>
+            <span className="text-sm font-medium">LinkedIn</span>
+          </a>
+          <a
+            href="#"
+            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
+          >
+            <i className="fas fa-globe"></i>
+            <span className="text-sm font-medium">Website</span>
+          </a>
+          <a
+            href="tel:+919073549642"
+            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
+          >
+            <i className="fas fa-phone"></i>
+            <span className="text-sm font-medium">Call</span>
+          </a>
+          <a
+            href="mailto:asreemany2000@gmail.com"
+            className="flex items-center gap-2 px-5 py-3 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-300 hover:border-emerald-500/50 hover:text-emerald-400 hover:bg-emerald-500/5 transition-all"
+          >
+            <i className="fas fa-envelope"></i>
+            <span className="text-sm font-medium">Email</span>
+          </a>
+          <button
+            onClick={downloadCV}
+            className="flex items-center gap-2 px-5 py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all"
+          >
+            <i className="fas fa-download"></i>
+            <span className="text-sm font-medium">Download CV</span>
+          </button>
+        </motion.div>
+
         {/* Quick Stats */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -176,10 +254,10 @@ function Hero() {
           className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto"
         >
           {[
-            { number: '35+', label: 'Months Experience' },
-            { number: '₹1400Cr', label: 'Project Value' },
-            { number: '18', label: 'Team Members Led' },
+            { number: '3 yrs', label: 'Industry Experience' },
+            { number: '₹1,400Cr', label: 'Project Value' },
             { number: 'Global 9th', label: 'ASME HPVC Rank' },
+            { number: '3', label: 'Languages (Native)' },
           ].map((stat, i) => (
             <div key={i} className="text-center p-4 rounded-2xl bg-gray-900/50 border border-gray-800/50">
               <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">{stat.number}</div>
@@ -190,7 +268,7 @@ function Hero() {
       </motion.div>
 
       {/* Scroll indicator */}
-      <motion.div 
+      <motion.div
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
@@ -240,13 +318,13 @@ function About() {
       <div className="grid lg:grid-cols-5 gap-12">
         <div className="lg:col-span-3 space-y-6">
           <p className="text-gray-300 text-lg leading-relaxed">
-            I'm a Mechanical Engineering graduate from <span className="text-emerald-400 font-medium">IIEST Shibpur</span> (CGPA 8.93/10) currently pursuing my <span className="text-emerald-400 font-medium">PGDM-IB at MDI Gurgaon</span>, bridging the gap between technical expertise and business strategy.
+            Mechanical engineer from <span className="text-emerald-400 font-medium">IIEST Shibpur</span> (B.Tech, 8.93 CGPA), heading to <span className="text-emerald-400 font-medium">Emlyon Business School (France)</span> for my Master in Management as part of a dual degree program with <span className="text-emerald-400 font-medium">MDI Gurgaon</span>.
           </p>
           <p className="text-gray-300 text-lg leading-relaxed">
-            With <span className="text-emerald-400 font-medium">35 months of experience</span> at Jindal Stainless Limited, I've led critical packages in a ₹1400+ Crore BOF Expansion Project — from planning through commissioning. I thrive in high-stakes environments where coordination, leadership, and problem-solving converge.
+            Before this, I spent close to three years at <span className="text-emerald-400 font-medium">Jindal Stainless Limited</span>, working on planning, coordination, and overall site execution for large-scale industrial projects. Mostly involved untangling operational bottlenecks, working across teams, and pushing things from paper to ground reality.
           </p>
           <p className="text-gray-300 text-lg leading-relaxed">
-            My journey spans from designing Human Powered Vehicles for global competitions to managing 18-member teams and coordinating with 13+ vendors. I bring the same rigor and creativity to everything I do — whether it's engineering, strategy, or even experimenting with new recipes in the kitchen.
+            I'm genuinely interested in <span className="text-emerald-400 font-medium">operations, marketing, analytics, and strategy</span> — and the systems that keep businesses running. Always open to connecting with people and conversations around business, tech, and anything worth learning about.
           </p>
         </div>
         <div className="lg:col-span-2">
@@ -257,15 +335,16 @@ function About() {
               </div>
               <div>
                 <div className="text-white font-bold text-lg">Aritra Sreemany</div>
-                <div className="text-gray-400 text-sm">PGDM-IB '26 @ MDI</div>
+                <div className="text-gray-400 text-sm">MiM '28 · PGDM-IB '28</div>
               </div>
             </div>
             <div className="space-y-4">
               {[
                 { icon: 'fa-graduation-cap', label: 'B.Tech Mechanical', sub: 'IIEST Shibpur — 8.93 CGPA' },
-                { icon: 'fa-briefcase', label: 'Associate Manager', sub: 'Jindal Stainless Ltd — 35 months' },
-                { icon: 'fa-location-dot', label: 'Based in', sub: 'Jajpur, Odisha → Gurgaon' },
-                { icon: 'fa-trophy', label: 'L&T TECHgium', sub: 'National Finalist' },
+                { icon: 'fa-building-columns', label: 'MiM @ Emlyon (France)', sub: 'Dual degree with MDI Gurgaon' },
+                { icon: 'fa-briefcase', label: 'Ex-Associate Manager', sub: 'Jindal Stainless — 3 years' },
+                { icon: 'fa-location-dot', label: 'Based in', sub: 'Kolkata → Odisha → Gurgaon → France' },
+                { icon: 'fa-language', label: 'Languages', sub: 'English · Hindi · Bengali · French' },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -287,83 +366,158 @@ function About() {
 
 // ============ EXPERIENCE ============
 function Experience() {
-  const responsibilities = [
-    'Spearheaded RMHS package, from planning through commissioning, in a ₹1400+ Crore BOF Project',
-    'Coordinated with 13+ vendors & contractors for procurement, supply, & timely equipment delivery',
-    'Led a team of 18 technicians & junior engineers for equipment installation & timely commissioning',
-    'Managed end-to-end billing & procurement of INR 1-2 Cr monthly, ensuring accuracy & compliance',
-    'Spearheaded milestone planning & progress tracking within a ₹1400+ Crore BOF Expansion Project',
-    'Collaborated with EPC contractors & cross-functional teams to resolve project bottlenecks & delays',
+  const experiences = [
+    {
+      company: 'Jindal Stainless',
+      role: 'Associate Manager',
+      location: 'Jajpur, Odisha',
+      period: 'July 2024 — June 2026',
+      duration: '2 years',
+      points: [
+        'Coordinated with 15+ vendors and contractors for procurement, supply, and timely equipment delivery on a ₹1,400+ crore BOF expansion project',
+        'Supervised a team of 15 technicians and junior engineers during equipment installation, erection, and commissioning activities',
+        'Planned and monitored project schedules while coordinating with engineering, procurement, and site teams to ensure timely execution of critical project milestones',
+        'Managed monthly billing and procurement worth ₹0.5–0.8 crore, ensuring accuracy and audit compliance',
+        'Revived a Raw Material Handling System (RMHS) package delayed by over a year through close coordination with EPC contractors and cross-functional teams',
+      ],
+      highlight: true,
+    },
+    {
+      company: 'Jindal Stainless',
+      role: 'Graduate Engineering Trainee',
+      location: 'Jajpur, Odisha',
+      period: 'July 2023 — July 2024',
+      duration: '1 year 1 month',
+      points: [
+        'Worked on planning, coordination, and site execution for large-scale industrial projects',
+        'Gained hands-on experience in procurement, vendor management, and project billing',
+        'Built foundational skills in stakeholder management and cross-functional coordination',
+      ],
+      highlight: false,
+    },
+    {
+      company: 'Primetals Technologies',
+      role: 'Summer Intern',
+      location: 'India',
+      period: 'June 2022 — July 2022',
+      duration: '2 months',
+      points: [
+        'Design and analysis of a Hydraulic Ladle Tilter',
+        'Performed design validation ensuring structural integrity and operational feasibility',
+      ],
+      highlight: false,
+    },
+    {
+      company: 'Jadavpur University, Kolkata',
+      role: 'Undergraduate Research Intern',
+      location: 'Kolkata, West Bengal',
+      period: 'June 2021 — December 2021',
+      duration: '7 months',
+      points: [
+        'Research internship on the influence of ambient conditions on droplet transport and evaporation in a closed indoor environment',
+        'Analysed effects of temperature, humidity, airflow, and viral load on droplet dispersion',
+      ],
+      highlight: false,
+    },
   ];
 
-  const achievements = [
-    'Created a robust material-tracking system spanning spec mapping, code generation & inventory checks',
-    'Revived an RMHS package delayed by close to a year, propelling it ahead of other cross-functional teams',
-    'Strengthened stakeholder management by close coordination with vendors & multiple internal teams',
-    'Cultivated leadership & delegation skills, leading an 18-member technician & junior engineer team',
-    'Enhanced proficiency in SAP & Excel for end-to-end procurement, billing & documentation',
-    'Recognised by Sr management for notable contribution to efficient project planning & execution',
+  const memberships = [
+    {
+      org: 'ASME (American Society of Mechanical Engineers)',
+      role: 'Student Member',
+      period: 'August 2019 — August 2023',
+      points: [
+        'Team member of Steering and Suspension department for ASME HPVC Competition (Team RAGNAR)',
+        'Core team member for the HPVC Innovation competition',
+      ],
+    },
+    {
+      org: 'ISHRAE',
+      role: 'Student Member',
+      period: 'May 2021 — June 2023',
+      points: [
+        'Led the revival of ISHRAE student chapter and increased member participation by 30%',
+        'Served as Co-Secretary; led the weekly newsletter initiative of the ASME college society',
+      ],
+    },
   ];
 
   return (
     <Section id="experience" className="bg-gray-900">
-      <SectionTitle eyebrow="Work Experience" title="35 Months at Jindal Stainless" description="Driving a ₹1400+ Crore BOF Expansion Project from concept to commissioning." />
-      
+      <SectionTitle eyebrow="Experience" title="Where I've Worked" description="From shop floor execution to strategic project management — three years of building things that matter." />
+
       <div className="relative">
         {/* Timeline line */}
         <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-emerald-500 via-teal-500 to-transparent hidden md:block"></div>
 
         <div className="space-y-8">
-          {/* Company Header */}
-          <div className="relative md:pl-20">
-            <div className="absolute left-6 top-6 w-4 h-4 bg-emerald-500 rounded-full border-4 border-gray-900 hidden md:block"></div>
-            <div className="bg-gray-800/50 border border-gray-700/50 rounded-2xl p-8">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-white">Jindal Stainless Limited</h3>
-                  <p className="text-emerald-400 font-medium">Associate Manager, SMS Carbon Steel</p>
+          {experiences.map((exp, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="relative md:pl-20"
+            >
+              <div className={`absolute left-6 top-6 w-4 h-4 rounded-full border-4 hidden md:block ${exp.highlight ? 'bg-emerald-500 border-gray-900' : 'bg-gray-600 border-gray-900'}`}></div>
+              <div className={`border rounded-2xl p-8 transition-all ${exp.highlight ? 'bg-gradient-to-r from-emerald-500/5 to-transparent border-emerald-500/20' : 'bg-gray-800/30 border-gray-700/50 hover:border-gray-600'}`}>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">{exp.company}</h3>
+                    <p className={`font-medium ${exp.highlight ? 'text-emerald-400' : 'text-gray-300'}`}>{exp.role}</p>
+                  </div>
+                  <div className="flex items-center gap-4 text-gray-400 text-sm">
+                    <span className="flex items-center gap-1.5">
+                      <i className="fas fa-calendar text-xs"></i>
+                      {exp.period}
+                    </span>
+                    <span className="px-2.5 py-1 bg-gray-800 rounded-full text-xs">{exp.duration}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                  <i className="fas fa-calendar"></i>
-                  <span>Jul '23 — Jun '26</span>
-                </div>
+                <p className="text-gray-500 text-sm mb-5">
+                  <i className="fas fa-location-dot mr-2"></i>{exp.location}
+                </p>
+                <ul className="space-y-3">
+                  {exp.points.map((point, j) => (
+                    <li key={j} className="flex items-start gap-3 text-gray-300 text-sm leading-relaxed">
+                      <span className={`w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0 ${exp.highlight ? 'bg-emerald-400' : 'bg-gray-500'}`}></span>
+                      {point}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <p className="text-gray-400 text-sm mb-2">
-                <i className="fas fa-location-dot mr-2"></i>Jajpur, Odisha
-              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
 
-              <div className="grid md:grid-cols-2 gap-8 mt-8">
-                <div>
-                  <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-                    <i className="fas fa-clipboard-list text-emerald-400 text-sm"></i>
-                    Roles & Responsibilities
-                  </h4>
-                  <ul className="space-y-3">
-                    {responsibilities.map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 text-gray-300 text-sm leading-relaxed">
-                        <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-                    <i className="fas fa-trophy text-amber-400 text-sm"></i>
-                    Key Achievements
-                  </h4>
-                  <ul className="space-y-3">
-                    {achievements.map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 text-gray-300 text-sm leading-relaxed">
-                        <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 flex-shrink-0"></span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Memberships */}
+      <div className="mt-16">
+        <h3 className="text-2xl font-bold text-white mb-8">Memberships & Leadership</h3>
+        <div className="grid md:grid-cols-2 gap-6">
+          {memberships.map((mem, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="bg-gray-800/30 border border-gray-700/50 rounded-2xl p-6"
+            >
+              <h4 className="text-white font-bold text-lg">{mem.org}</h4>
+              <p className="text-emerald-400 text-sm font-medium">{mem.role}</p>
+              <p className="text-gray-500 text-xs mt-1">{mem.period}</p>
+              <ul className="mt-4 space-y-2">
+                {mem.points.map((point, j) => (
+                  <li key={j} className="flex items-start gap-2 text-gray-400 text-sm">
+                    <span className="w-1 h-1 bg-emerald-400 rounded-full mt-2 flex-shrink-0"></span>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
         </div>
       </div>
     </Section>
@@ -374,34 +528,39 @@ function Experience() {
 function Education() {
   const educationData = [
     {
+      degree: 'Master in Management (MiM)',
+      institute: 'emlyon business school, France',
+      score: "June 2026 — June 2028",
+      icon: 'fa-earth-europe',
+      highlight: true,
+      badge: 'Dual Degree',
+    },
+    {
       degree: 'PGDM — International Business',
       institute: 'Management Development Institute (MDI), Gurgaon',
-      score: "Pursuing '26",
-      year: '2024 — 2026',
+      score: "June 2026 — 2028",
       icon: 'fa-building-columns',
       highlight: true,
+      badge: 'Dual Degree',
     },
     {
       degree: 'B.Tech — Mechanical Engineering',
-      institute: 'IIEST, Shibpur (Indian Institute of Engineering Science & Technology)',
-      score: '8.93 / 10 CGPA',
-      year: '2019 — 2023',
+      institute: 'IIEST, Shibpur',
+      score: '8.93 / 10 CGPA · 2019 — 2023',
       icon: 'fa-graduation-cap',
       highlight: false,
     },
     {
       degree: 'XII — CBSE',
       institute: 'South Point High School, Kolkata',
-      score: '90.40%',
-      year: '2018',
+      score: '90.40% · 2012 — 2018',
       icon: 'fa-school',
       highlight: false,
     },
     {
       degree: 'X — WBBSE',
-      institute: 'South Point High School, Kolkata',
-      score: '89.14%',
-      year: '2016',
+      institute: 'South Point School, Kolkata',
+      score: '89.14% · 2002 — 2016',
       icon: 'fa-school',
       highlight: false,
     },
@@ -409,7 +568,7 @@ function Education() {
 
   return (
     <Section id="education" className="bg-gray-950">
-      <SectionTitle eyebrow="Education" title="Academic Journey" />
+      <SectionTitle eyebrow="Education" title="Academic Journey" description="From Kolkata to France — a journey of continuous learning." />
       <div className="space-y-4">
         {educationData.map((edu, i) => (
           <motion.div
@@ -418,29 +577,29 @@ function Education() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
-            className={`relative p-6 rounded-2xl border transition-all hover:-translate-y-0.5 ${
-              edu.highlight 
-                ? 'bg-gradient-to-r from-emerald-500/10 to-teal-500/5 border-emerald-500/30' 
-                : 'bg-gray-900/50 border-gray-800/50 hover:border-gray-700'
-            }`}
+            className={`relative p-6 rounded-2xl border transition-all hover:-translate-y-0.5 ${edu.highlight
+              ? 'bg-gradient-to-r from-emerald-500/10 to-teal-500/5 border-emerald-500/30'
+              : 'bg-gray-900/50 border-gray-800/50 hover:border-gray-700'
+              }`}
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  edu.highlight ? 'bg-emerald-500/20' : 'bg-gray-800'
-                }`}>
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${edu.highlight ? 'bg-emerald-500/20' : 'bg-gray-800'
+                  }`}>
                   <i className={`fas ${edu.icon} ${edu.highlight ? 'text-emerald-400' : 'text-gray-400'}`}></i>
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg">{edu.degree}</h3>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h3 className="text-white font-bold text-lg">{edu.degree}</h3>
+                    {edu.badge && (
+                      <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs font-medium rounded-full">{edu.badge}</span>
+                    )}
+                  </div>
                   <p className="text-gray-400 text-sm mt-1">{edu.institute}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4 md:text-right">
-                <div>
-                  <div className={`font-bold ${edu.highlight ? 'text-emerald-400' : 'text-white'}`}>{edu.score}</div>
-                  <div className="text-gray-500 text-sm">{edu.year}</div>
-                </div>
+              <div className="md:text-right">
+                <div className={`font-medium text-sm ${edu.highlight ? 'text-emerald-400' : 'text-gray-300'}`}>{edu.score}</div>
               </div>
             </div>
           </motion.div>
@@ -454,6 +613,13 @@ function Education() {
 function Achievements() {
   const achievements = [
     {
+      title: 'ASME HPVC — Global Rank 9th',
+      description: 'Achieved Global Rank 9th and National Rank 3rd in ASME HPVC 2020 (E-FEST). Designed a Human Powered Vehicle from scratch as part of Team RAGNAR.',
+      year: '2020',
+      icon: 'fa-globe',
+      color: 'from-emerald-500 to-teal-500',
+    },
+    {
       title: 'L&T TECHgium — National Finalist',
       description: 'Served as Team Lead, reaching the national finals of L&T TECHgium contest (5th Edition). Led the design of an EGR-integrated Catalysed DPF for modern vehicles.',
       year: '2022',
@@ -461,32 +627,32 @@ function Achievements() {
       color: 'from-amber-500 to-orange-500',
     },
     {
-      title: 'ASME HPVC — Global Rank 9th',
-      description: 'Achieved Global Rank 9th and National Rank 3rd in ASME HPVC 2020 (E-FEST). Designed a Human Powered Vehicle from scratch and coordinated design reviews.',
-      year: '2020',
-      icon: 'fa-globe',
-      color: 'from-emerald-500 to-teal-500',
-    },
-    {
       title: 'Research Publication — ISHRAE Journal',
-      description: "Published research titled 'Thermo-Economic Analysis of Cascade Refrigeration System' in ISHRAE Journal (2023) & presented at INCOM 2024 conference.",
+      description: "Co-authored paper titled 'Thermo-Economic Analysis of Cascade Refrigeration System' published in ISHRAE Journal (2023) & presented at INCOM 2024.",
       year: '2023',
       icon: 'fa-file-lines',
       color: 'from-blue-500 to-cyan-500',
     },
     {
       title: 'Springer Nature Publication',
-      description: 'Works published as a Springer Nature chapter in "Advances in Energy & Sustainability" — evaluating optimal low-GWP refrigerant combinations.',
-      year: '2019',
+      description: 'Published as a Springer Nature chapter in "Advances in Energy & Sustainability" — evaluating optimal low-GWP refrigerant combinations for max efficiency.',
+      year: '2024',
       icon: 'fa-book',
       color: 'from-violet-500 to-purple-500',
     },
     {
       title: 'Sr. Management Recognition',
-      description: 'Recognised by senior management at Jindal Stainless for notable contribution to efficient project planning & execution of the BOF Expansion.',
+      description: 'Recognised by senior management at Jindal Stainless for notable contribution to efficient project planning & execution of the ₹1,400+ Cr BOF Expansion.',
       year: '2025',
       icon: 'fa-star',
       color: 'from-pink-500 to-rose-500',
+    },
+    {
+      title: 'Revived Delayed RMHS Package',
+      description: 'Single-handedly revived a Raw Material Handling System package delayed by over a year, propelling it ahead of other cross-functional teams.',
+      year: '2025',
+      icon: 'fa-rotate',
+      color: 'from-cyan-500 to-blue-500',
     },
   ];
 
@@ -521,30 +687,30 @@ function Projects() {
   const projects = [
     {
       title: 'Hydraulic Ladle Tilter Design',
-      type: 'Design Internship (8 Weeks)',
+      type: 'Primetals Technologies · Internship',
       description: 'Designed complete Hydraulic Ladle Tilter assembly from scratch using SolidWorks. Performed design validation ensuring structural integrity and operational feasibility.',
       tags: ['SolidWorks', 'Design Validation', 'Mechanical Design'],
       icon: 'fa-gears',
     },
     {
       title: 'Respiratory Droplet Dispersion Study',
-      type: 'Research Project (10 Weeks)',
-      description: 'Researched evaporation & transport of respiratory droplets in varying ambient conditions. Analysed effects of temperature, humidity, airflow, & viral load on droplet dispersion.',
+      type: 'Jadavpur University · Research Intern',
+      description: 'Researched influence of ambient conditions on droplet transport and evaporation in a closed indoor environment. Analysed effects of temperature, humidity, airflow, & viral load.',
       tags: ['Research', 'Data Analysis', 'Fluid Dynamics'],
       icon: 'fa-microscope',
     },
     {
       title: 'Cascade Refrigeration System',
-      type: 'Academic Project (17 Weeks)',
+      type: 'Academic Project · Research',
       description: 'Developed a thermodynamic model for a Cascade Refrigeration System with low GWP refrigerants. Analysed system performance utilizing thermodynamic & thermo-economic parameters.',
       tags: ['Thermodynamics', 'Sustainability', 'Modelling'],
       icon: 'fa-temperature-low',
     },
     {
-      title: 'Material Tracking System',
-      type: 'Live Project @ JSL',
-      description: 'Created a robust material-tracking system spanning spec mapping, code generation & inventory checks for the ₹1400+ Cr BOF project.',
-      tags: ['SAP', 'Process Design', 'Inventory Management'],
+      title: 'RMHS Material Tracking System',
+      type: 'Jindal Stainless · Live Project',
+      description: 'Created a robust material-tracking system spanning spec mapping, code generation & inventory checks for the ₹1,400+ Cr BOF project. Streamlined procurement workflows.',
+      tags: ['SAP', 'Process Design', 'Inventory'],
       icon: 'fa-database',
     },
   ];
@@ -584,92 +750,131 @@ function Projects() {
 
 // ============ SKILLS & INTERESTS ============
 function SkillsAndInterests() {
-  const skills = [
-    { name: 'Project Management', level: 95 },
-    { name: 'Team Leadership', level: 90 },
-    { name: 'SAP & ERP Systems', level: 85 },
-    { name: 'Procurement & Billing', level: 90 },
-    { name: 'Stakeholder Management', level: 88 },
-    { name: 'SolidWorks / CAD', level: 80 },
-    { name: 'Python & Data Structures', level: 70 },
-    { name: 'Excel & Data Analysis', level: 85 },
+  const topSkills = [
+    { name: 'Strategy', icon: 'fa-chess' },
+    { name: 'Operations Management', icon: 'fa-gears' },
+    { name: 'Root Cause Analysis', icon: 'fa-magnifying-glass-chart' },
+    { name: 'Project Management', icon: 'fa-diagram-project' },
+    { name: 'Stakeholder Management', icon: 'fa-people-group' },
+    { name: 'Procurement & Billing', icon: 'fa-file-invoice' },
+    { name: 'SAP & ERP Systems', icon: 'fa-database' },
+    { name: 'Team Leadership', icon: 'fa-users' },
+    { name: 'SolidWorks / CAD', icon: 'fa-compass-drafting' },
+    { name: 'Python & Data Structures', icon: 'fa-code' },
+    { name: 'Excel & Data Analysis', icon: 'fa-table' },
+    { name: 'Vendor Coordination', icon: 'fa-handshake' },
+  ];
+
+  const languages = [
+    { name: 'English', level: 'Native / Bilingual', flag: '🇬🇧' },
+    { name: 'Hindi', level: 'Native / Bilingual', flag: '🇮🇳' },
+    { name: 'Bengali', level: 'Native / Bilingual', flag: '🇧🇩' },
+    { name: 'French', level: 'Elementary', flag: '🇫🇷' },
+  ];
+
+  const certifications = [
+    { name: 'Python: From Basics to Data Structure', icon: 'fab fa-python', color: 'text-blue-400' },
+    { name: 'Automotive Engineering — Supercharging', icon: 'fa-car', color: 'text-red-400' },
   ];
 
   const interests = [
-    { icon: 'fa-utensils', name: 'Cooking', desc: 'Experimenting with diverse recipes & cuisines' },
+    { icon: 'fa-utensils', name: 'Cooking', desc: 'Experimenting with diverse recipes & cuisines as a creative pursuit' },
     { icon: 'fa-table-tennis-paddle-ball', name: 'Badminton', desc: 'Enjoying fast-paced rallies & competitive matches' },
     { icon: 'fa-gamepad', name: 'Gaming', desc: 'Strategy & story-driven PC game enthusiast' },
   ];
 
   return (
     <Section id="skills" className="bg-gray-900">
-      <div className="grid lg:grid-cols-2 gap-16">
-        <div>
-          <span className="text-emerald-400 font-semibold text-sm uppercase tracking-wider">Skills</span>
-          <h2 className="text-4xl font-bold text-white mt-3 mb-10">What I bring to the table</h2>
-          <div className="space-y-5">
-            {skills.map((skill, i) => (
+      <SectionTitle eyebrow="Skills & More" title="What I Bring to the Table" />
+
+      <div className="grid lg:grid-cols-3 gap-10">
+        {/* Skills Grid */}
+        <div className="lg:col-span-2">
+          <h3 className="text-white font-bold text-xl mb-6">Core Skills</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {topSkills.map((skill, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.05 }}
+                transition={{ duration: 0.3, delay: i * 0.03 }}
+                className="flex items-center gap-3 p-3 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:border-emerald-500/30 transition-all"
               >
-                <div className="flex justify-between mb-2">
-                  <span className="text-gray-300 text-sm font-medium">{skill.name}</span>
-                  <span className="text-emerald-400 text-sm">{skill.level}%</span>
+                <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <i className={`fas ${skill.icon} text-emerald-400 text-xs`}></i>
                 </div>
-                <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${skill.level}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1, delay: i * 0.1 }}
-                  ></motion.div>
-                </div>
+                <span className="text-gray-300 text-sm font-medium">{skill.name}</span>
               </motion.div>
             ))}
           </div>
-        </div>
-        <div>
-          <span className="text-emerald-400 font-semibold text-sm uppercase tracking-wider">Beyond Work</span>
-          <h2 className="text-4xl font-bold text-white mt-3 mb-10">Interests & Hobbies</h2>
-          <div className="space-y-4">
-            {interests.map((interest, i) => (
+
+          {/* Certifications */}
+          <h3 className="text-white font-bold text-xl mt-10 mb-6">Certifications</h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            {certifications.map((cert, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="flex items-center gap-5 p-5 bg-gray-800/50 border border-gray-700/50 rounded-2xl hover:border-emerald-500/30 transition-all"
+                className="flex items-center gap-4 p-5 bg-gray-800/50 border border-gray-700/50 rounded-2xl"
               >
-                <div className="w-14 h-14 bg-emerald-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <i className={`fas ${interest.icon} text-emerald-400 text-xl`}></i>
+                <div className="w-10 h-10 bg-gray-700/50 rounded-lg flex items-center justify-center">
+                  <i className={`${cert.icon} ${cert.color} text-lg`}></i>
                 </div>
-                <div>
-                  <div className="text-white font-bold">{interest.name}</div>
-                  <div className="text-gray-400 text-sm">{interest.desc}</div>
-                </div>
+                <div className="text-white text-sm font-medium">{cert.name}</div>
               </motion.div>
             ))}
           </div>
+        </div>
 
-          {/* Certifications */}
-          <div className="mt-10">
-            <span className="text-emerald-400 font-semibold text-sm uppercase tracking-wider">Certifications</span>
-            <div className="mt-4 p-5 bg-gray-800/50 border border-gray-700/50 rounded-2xl">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                  <i className="fab fa-python text-blue-400"></i>
-                </div>
-                <div>
-                  <div className="text-white font-medium text-sm">Python: Basics to Data Structures</div>
-                  <div className="text-gray-500 text-xs">Python fundamentals, OOP, & data structures — 2021</div>
-                </div>
-              </div>
+        {/* Languages & Interests */}
+        <div className="space-y-10">
+          <div>
+            <h3 className="text-white font-bold text-xl mb-6">Languages</h3>
+            <div className="space-y-3">
+              {languages.map((lang, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.1 }}
+                  className="flex items-center justify-between p-4 bg-gray-800/50 border border-gray-700/50 rounded-xl"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{lang.flag}</span>
+                    <span className="text-white font-medium text-sm">{lang.name}</span>
+                  </div>
+                  <span className="text-gray-400 text-xs">{lang.level}</span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-white font-bold text-xl mb-6">Beyond Work</h3>
+            <div className="space-y-3">
+              {interests.map((interest, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: i * 0.1 }}
+                  className="flex items-center gap-4 p-4 bg-gray-800/50 border border-gray-700/50 rounded-xl hover:border-emerald-500/30 transition-all"
+                >
+                  <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i className={`fas ${interest.icon} text-emerald-400`}></i>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium text-sm">{interest.name}</div>
+                    <div className="text-gray-500 text-xs">{interest.desc}</div>
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </div>
@@ -692,42 +897,67 @@ function Contact() {
 
   return (
     <Section id="contact" className="bg-gray-950">
-      <SectionTitle eyebrow="Contact" title="Let's Connect" description="Have an opportunity or just want to say hello? I'd love to hear from you." />
+      <SectionTitle eyebrow="Contact" title="Let's Connect" description="Always open to conversations around business, tech, and anything worth learning about." />
       <div className="grid lg:grid-cols-2 gap-12">
         <div className="space-y-8">
           <div className="space-y-6">
-            {[
-              { icon: 'fa-envelope', label: 'Email', value: 'aritrasreemany@gmail.com', link: 'mailto:aritrasreemany@gmail.com' },
-              { icon: 'fa-phone', label: 'Phone', value: '+91-XXXXXXXXXX', link: 'tel:+91XXXXXXXXXX' },
-              { icon: 'fa-location-dot', label: 'Location', value: 'Gurgaon, India', link: '#' },
-              { icon: 'fa-building-columns', label: 'Institute', value: 'MDI Gurgaon — PGDM-IB \'26', link: '#' },
-            ].map((item, i) => (
-              <a key={i} href={item.link} className="flex items-center gap-4 group">
-                <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center group-hover:bg-emerald-500/20 transition-all">
-                  <i className={`fas ${item.icon} text-emerald-400`}></i>
-                </div>
-                <div>
-                  <div className="text-gray-500 text-xs uppercase tracking-wider">{item.label}</div>
-                  <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">{item.value}</div>
-                </div>
-              </a>
-            ))}
+            <a href="tel:+919073549642" className="flex items-center gap-4 group">
+              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center group-hover:bg-emerald-500/20 transition-all">
+                <i className="fas fa-phone text-emerald-400"></i>
+              </div>
+              <div>
+                <div className="text-gray-500 text-xs uppercase tracking-wider">Phone</div>
+                <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">+91 9073549642</div>
+              </div>
+            </a>
+            <a href="mailto:asreemany2000@gmail.com" className="flex items-center gap-4 group">
+              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center group-hover:bg-emerald-500/20 transition-all">
+                <i className="fas fa-envelope text-emerald-400"></i>
+              </div>
+              <div>
+                <div className="text-gray-500 text-xs uppercase tracking-wider">Email</div>
+                <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">asreemany2000@gmail.com</div>
+              </div>
+            </a>
+            <a href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group">
+              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center group-hover:bg-emerald-500/20 transition-all">
+                <i className="fab fa-linkedin-in text-emerald-400"></i>
+              </div>
+              <div>
+                <div className="text-gray-500 text-xs uppercase tracking-wider">LinkedIn</div>
+                <div className="text-white font-medium group-hover:text-emerald-400 transition-colors">aritra-sreemany</div>
+              </div>
+            </a>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center">
+                <i className="fas fa-location-dot text-emerald-400"></i>
+              </div>
+              <div>
+                <div className="text-gray-500 text-xs uppercase tracking-wider">Location</div>
+                <div className="text-white font-medium">Gurgaon, India → France (soon)</div>
+              </div>
+            </div>
           </div>
 
           <div className="pt-6 border-t border-gray-800">
-            <p className="text-gray-500 text-sm mb-4">Find me on</p>
-            <div className="flex gap-3">
-              {[
-                { icon: 'fa-linkedin-in', label: 'LinkedIn' },
-                { icon: 'fa-github', label: 'GitHub' },
-                { icon: 'fa-twitter', label: 'Twitter' },
-              ].map((social, i) => (
-                <a key={i} href="#" className="w-10 h-10 bg-gray-800 border border-gray-700 rounded-full flex items-center justify-center text-gray-400 hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-400 transition-all">
-                  <i className={`fab ${social.icon}`}></i>
-                </a>
+            <p className="text-gray-500 text-sm mb-4">Interests I'd love to discuss</p>
+            <div className="flex flex-wrap gap-2">
+              {['Operations', 'Marketing', 'Analytics', 'Strategy', 'Business', 'Tech'].map((topic) => (
+                <span key={topic} className="px-3 py-1.5 bg-gray-800/50 border border-gray-700/50 rounded-full text-gray-400 text-sm">
+                  {topic}
+                </span>
               ))}
             </div>
           </div>
+
+          {/* Download CV Button */}
+          <button
+            onClick={downloadCV}
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 font-semibold hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all"
+          >
+            <i className="fas fa-file-arrow-down"></i>
+            <span>Download My CV</span>
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-8">
@@ -799,11 +1029,103 @@ function Footer() {
         <div className="text-gray-500 text-sm">
           © 2026 Aritra Sreemany. Crafted with passion.
         </div>
-        <div className="text-gray-600 text-sm">
-          PGDM-IB '26 @ MDI Gurgaon
+        <div className="flex items-center gap-6">
+          <a href="https://www.linkedin.com/in/aritra-sreemany-9171351ba/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-emerald-400 transition-colors">
+            <i className="fab fa-linkedin-in"></i>
+          </a>
+          <a href="mailto:asreemany2000@gmail.com" className="text-gray-500 hover:text-emerald-400 transition-colors">
+            <i className="fas fa-envelope"></i>
+          </a>
+          <span className="text-gray-600 text-sm">MiM '28 · PGDM-IB '28</span>
         </div>
       </div>
     </footer>
+  );
+}
+
+// ============ FLOATING ACTION BUTTON ============
+function FloatingActionButton() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const actions = [
+    {
+      icon: 'fab fa-linkedin-in',
+      label: 'LinkedIn',
+      href: 'https://www.linkedin.com/in/aritra-sreemany-9171351ba/',
+      external: true,
+      color: 'bg-blue-600 hover:bg-blue-700',
+    },
+    {
+      icon: 'fas fa-globe',
+      label: 'Website',
+      href: '#',
+      external: false,
+      color: 'bg-cyan-600 hover:bg-cyan-700',
+    },
+    {
+      icon: 'fas fa-phone',
+      label: 'Call',
+      href: 'tel:+919073549642',
+      external: false,
+      color: 'bg-emerald-600 hover:bg-emerald-700',
+    },
+    {
+      icon: 'fas fa-envelope',
+      label: 'Email',
+      href: 'mailto:asreemany2000@gmail.com',
+      external: false,
+      color: 'bg-rose-600 hover:bg-rose-700',
+    },
+    {
+      icon: 'fas fa-download',
+      label: 'Download CV',
+      href: '#',
+      external: false,
+      color: 'bg-violet-600 hover:bg-violet-700',
+      action: downloadCV,
+    },
+  ];
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.8 }}
+            transition={{ duration: 0.2 }}
+            className="absolute bottom-16 right-0 flex flex-col gap-3"
+          >
+            {actions.map((action, i) => (
+              <motion.a
+                key={i}
+                href={action.action ? undefined : action.href}
+                onClick={action.action ? (e) => { e.preventDefault(); action.action?.(); setIsOpen(false); } : undefined}
+                target={action.external ? '_blank' : undefined}
+                rel={action.external ? 'noopener noreferrer' : undefined}
+                className={`flex items-center gap-3 px-4 py-3 ${action.color} text-white rounded-full shadow-lg whitespace-nowrap transition-all`}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <i className={`${action.icon} w-5 text-center`}></i>
+                <span className="text-sm font-medium">{action.label}</span>
+              </motion.a>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all ${isOpen ? 'bg-gray-700 rotate-45' : 'bg-gradient-to-r from-emerald-500 to-teal-500'}`}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <i className={`fas ${isOpen ? 'fa-plus' : 'fa-comment-dots'} text-white text-lg`}></i>
+      </motion.button>
+    </div>
   );
 }
 
@@ -821,6 +1143,7 @@ export default function App() {
       <SkillsAndInterests />
       <Contact />
       <Footer />
+      <FloatingActionButton />
     </div>
   );
 }
